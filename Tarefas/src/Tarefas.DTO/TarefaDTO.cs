@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 
 namespace Tarefas.DTO
 {
+
     public class TarefaDTO
     {
         public int Id { get; set; }
