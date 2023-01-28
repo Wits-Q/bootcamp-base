@@ -7,19 +7,21 @@ namespace Tarefas.Web.Controllers
 {
     public class TarefaController : Controller
     {
-        public List<Tarefa> listaDeTarefas { get; set; }
+        public List<TarefaViewModel> listaDeTarefas { get; set; }
 
-        public TarefaController()
+        private TarefaDAO _tarefaDAO;
+
+        public TarefaController(ITarefaDAO tarefaDAO)
         {
-            
+            _tarefaDAO = new TarefaDAO();
         }
         
         public IActionResult Details(int id)
         {
-            var tarefaDAO = new TarefaDAO();
-            var tarefaDTO = tarefaDAO.Consultar(id);
+            
+            var tarefaDTO = _tarefaDAO.Consultar(id);
 
-            var tarefa = new Tarefa()
+            var tarefa = new TarefaViewModel()
             {
                 Id = tarefaDTO.Id,
                 Titulo = tarefaDTO.Titulo,
@@ -35,11 +37,11 @@ namespace Tarefas.Web.Controllers
             var tarefaDAO = new TarefaDAO();
             var listaDeTarefasDTO = tarefaDAO.Consultar();
 
-            listaDeTarefas = new List<Tarefa>();
+            listaDeTarefas = new List<TarefaViewModel>();
 
             foreach (var tarefaDTO in listaDeTarefasDTO)
             {
-                listaDeTarefas.Add(new Tarefa()
+                listaDeTarefas.Add(new TarefaViewModel()
                 {
                     Id = tarefaDTO.Id,
                     Titulo = tarefaDTO.Titulo,
@@ -58,8 +60,13 @@ namespace Tarefas.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(Tarefa tarefa)
+        public IActionResult Create(TarefaViewModel tarefa)
         {
+            if(!ModelState.IsValid)
+            {
+            return View();
+            }
+
             var tarefaDTO = new TarefaDTO 
             {
                 Titulo = tarefa.Titulo,
@@ -67,23 +74,28 @@ namespace Tarefas.Web.Controllers
                 Concluida = tarefa.Concluida
             };
 
-            var tarefaDAO = new TarefaDAO();
-            tarefaDAO.Criar(tarefaDTO);
+            
+            _tarefaDAO.Criar(tarefaDTO);
 
             return RedirectToAction("Index");
         }
         public IActionResult Delete(int id)
         {
-            var tarefaDAO = new TarefaDAO();
-            tarefaDAO.Excluir(id);
+            
+            _tarefaDAO.Excluir(id);
 
             return RedirectToAction("Index");
                
         }
               
         [HttpPost]
-        public IActionResult Update(Tarefa tarefa)
+        public IActionResult Update(TarefaViewModel tarefa)
         {
+            if(!ModelState.IsValid)
+            {
+            return View();
+            }
+
             var tarefaDTO = new TarefaDTO 
             {
                 Id = tarefa.Id,
@@ -92,17 +104,17 @@ namespace Tarefas.Web.Controllers
                 Concluida = tarefa.Concluida
             };
                     
-            var tarefaDAO = new TarefaDAO();
-            tarefaDAO.Atualizar(tarefaDTO);
+            
+            _tarefaDAO.Atualizar(tarefaDTO);
 
             return RedirectToAction("Index");
         }
         public IActionResult Update(int id)
         {
-            var tarefaDAO = new TarefaDAO();
-            var tarefaDTO = tarefaDAO.Consultar(id);
+            
+            var tarefaDTO = _tarefaDAO.Consultar(id);
 
-            var tarefa = new Tarefa() 
+            var tarefa = new TarefaViewModel() 
             {
                 Id = tarefaDTO.Id,
                 Titulo = tarefaDTO.Titulo,
